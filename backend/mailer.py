@@ -2,7 +2,7 @@ import smtplib
 import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from .email_templates import OTP_EMAIL_TEMPLATE
+from email_templates import OTP_EMAIL_TEMPLATE
 
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))

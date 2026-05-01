@@ -12,9 +12,9 @@ from sqlalchemy.orm import Session
 env_path = Path(__file__).parent / ".env"
 load_dotenv(env_path)
 
-from .database import engine, get_db
-from . import models, auth, schemas
-from .routers import auth as auth_router, admin as admin_router
+from database import engine, get_db
+import models, auth, schemas
+from routers import auth as auth_router, admin as admin_router
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)

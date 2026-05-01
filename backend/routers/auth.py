@@ -2,7 +2,7 @@ import random
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from .. import database, models, schemas, auth, mailer
+import database, models, schemas, auth, mailer
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
