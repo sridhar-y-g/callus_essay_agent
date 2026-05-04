@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email_templates import OTP_EMAIL_TEMPLATE
 
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
 SMTP_USERNAME = os.getenv("SMTP_USERNAME")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
@@ -28,8 +28,8 @@ def send_verification_email(to_email: str, otp: str):
         return
 
     try:
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()
+        # Use SMTP_SSL for port 465 (more reliable on cloud hosts)
+        server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT)
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
         server.sendmail(msg["From"], msg["To"], msg.as_string())
         server.quit()
