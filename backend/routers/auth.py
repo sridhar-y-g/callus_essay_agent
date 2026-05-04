@@ -1,6 +1,6 @@
 import random
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 import database, models, schemas, auth, mailer
 
@@ -10,7 +10,7 @@ def generate_otp() -> str:
     return str(random.randint(100000, 999999))
 
 @router.post("/register", response_model=schemas.UserResponse)
-def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
+def register(user: schemas.UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(database.get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
         # If user exists but is unverified, resend OTP
@@ -20,7 +20,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
             db_user.otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
             db.commit()
             db.refresh(db_user)
-            mailer.send_verification_email(db_user.email, otp)
+            background_tasks.add_task(mailer.send_verification_email, db_user.email, otp)
             return db_user
         raise HTTPException(status_code=400, detail="Email already registered")
 
@@ -43,8 +43,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     db.commit()
 
     # Send OTP email
-    mailer.send_verification_email(new_user.email, otp)
-
+    background_tasks.add_task(mailer.send_verification_email, new_user.email, otp)
     return new_user
 
 @router.post("/verify-otp")
