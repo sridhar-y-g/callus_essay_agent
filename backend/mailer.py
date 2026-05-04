@@ -36,3 +36,7 @@ def send_verification_email(to_email: str, otp: str):
         print(f"OTP email sent to {to_email}")
     except Exception as e:
         print(f"Error sending email: {e}")
+        print(f"!!! [RENDER FREE PLAN FALLBACK] !!!")
+        print(f"Could not send email due to Render network restrictions.")
+        print(f"COPY THIS OTP TO VERIFY: {otp}")
+        print(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")

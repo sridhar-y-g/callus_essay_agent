@@ -13,14 +13,10 @@ def generate_otp() -> str:
 def register(user: schemas.UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(database.get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
-        # If user exists but is unverified, resend OTP
         if not db_user.is_verified:
-            otp = generate_otp()
-            db_user.verification_token = otp
-            db_user.otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
+            db_user.is_verified = True
             db.commit()
             db.refresh(db_user)
-            background_tasks.add_task(mailer.send_verification_email, db_user.email, otp)
             return db_user
         raise HTTPException(status_code=400, detail="Email already registered")
 
@@ -30,8 +26,7 @@ def register(user: schemas.UserCreate, background_tasks: BackgroundTasks, db: Se
     new_user = models.User(
         email=user.email,
         password_hash=hashed_password,
-        verification_token=otp,
-        otp_expires_at=datetime.utcnow() + timedelta(minutes=10)
+        is_verified=True
     )
     db.add(new_user)
     db.commit()
@@ -42,8 +37,7 @@ def register(user: schemas.UserCreate, background_tasks: BackgroundTasks, db: Se
     db.add(new_profile)
     db.commit()
 
-    # Send OTP email
-    background_tasks.add_task(mailer.send_verification_email, new_user.email, otp)
+    # Auto-verify complete
     return new_user
 
 @router.post("/verify-otp")

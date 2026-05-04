@@ -47,8 +47,9 @@ export function Auth() {
         await login(data.access_token);
         navigate('/chat');
       } else {
-        setAuthMode('otp');
-        setMessage('A 6-digit code has been sent to your email.');
+        setAuthMode('login');
+        setPassword('');
+        setMessage('Registration successful! Please log in with your credentials.');
       }
     } catch (err: any) {
       setError(err.message);
